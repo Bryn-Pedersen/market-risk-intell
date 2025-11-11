@@ -1,0 +1,31 @@
+defaults:
+  - model: lstm
+  - _self_
+
+seed: 42
+
+data:
+  window: 60          # sequence length days fed to the LSTM
+  horizon: 3          # for labeling
+  features: ["ret", "rv10", "volume_z"]
+  train_start: "2012-01-01"
+  valid_start: "2019-01-01"
+  test_start: "2023-01-01"
+
+label:
+  vol_window: 10
+  vol_thresh_p: 0.8
+
+train:
+  batch_size: 64
+  max_epochs: 10
+  lr: 1e-3
+  weight_decay: 1e-5
+  num_workers: 0
+
+paths:
+  data_dir: "data"
+  raw_dir: "data/raw"
+  proc_dir: "data/processed"
+  artifacts_dir: "artifacts"
+
