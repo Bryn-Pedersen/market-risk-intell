@@ -23,10 +23,10 @@ def make_labels(df, horizon=3, vol_window=10, vol_thresh_p=0.8):
     Create risk labels and basic features
     
     Args:
-        df: DataFrame with price data must have close volume ticker date
+        df
         horizon: Number of days forward to look for risk spike
         vol_window: Window size for realized volatility calculation
-        vol_thresh_p: Percentile threshold for risk label 0.8 = top 20%
+        vol_thresh_p: Percentile threshold for risk label 0.8
     
     Returns:
         Tuple of DataFrame with labels/features threshold value
@@ -34,21 +34,21 @@ def make_labels(df, horizon=3, vol_window=10, vol_thresh_p=0.8):
     df = df.copy()
     df['ret'] = df.groupby('ticker')['close'].pct_change()
     
-    # Use transform to compute realized volatility preserves index alignment
+    # Use transform to compute realized volatility
     df['rv10'] = df.groupby('ticker')['ret'].transform(
         lambda s: realized_vol(s, vol_window)
     )
     
     # Forward max RV over next H days starting from tomorrow not today
-    # For day t compute max(rv10[t+1], rv10[t+2], ..., rv10[t+horizon])
-    # Process each ticker group separately to avoid pandas index alignment issues
+    # For day (t) compute max(rv10[t+1], ..., rv10[t+horizon])
+    # Process each ticker group separately.... avoid pandas index alignment issues
     rv_fwd_max_list = []
     for ticker, group in df.groupby('ticker'):
         # Work with numpy array to avoid index complications
         rv_values = group['rv10'].values
         result_values = np.full(len(rv_values), np.nan, dtype=float)
         
-        # For each day look ahead up to horizon days
+        # For each day, look ahead up to horizon days
         for i in range(len(rv_values)):
             if i + 1 < len(rv_values):
                 end_idx = min(i + 1 + horizon, len(rv_values))
@@ -56,18 +56,18 @@ def make_labels(df, horizon=3, vol_window=10, vol_thresh_p=0.8):
                 if len(future_values) > 0:
                     result_values[i] = np.nanmax(future_values)
         
-        # Create Series with original group index
+        # Series with original group index
         rv_fwd_max = pd.Series(result_values, index=group.index, name='rv_fwd_max')
         rv_fwd_max_list.append(rv_fwd_max)
     
-    # Combine all tickers and align with original DataFrame index
+    # Combine and align with original DataFrame index
     df['rv_fwd_max'] = pd.concat(rv_fwd_max_list).reindex(df.index)
     
     # Threshold for label
     thresh = df['rv_fwd_max'].quantile(vol_thresh_p)
     df['risk_label'] = (df['rv_fwd_max'] >= thresh).astype(int)
     
-    # Auxiliary feature volume z-score 60-day
+    # feature volume z-score 60-day
     df['volume_z'] = df.groupby('ticker')['volume'].transform(
         lambda s: (s - s.rolling(60).mean()) / (s.rolling(60).std() + 1e-6)
     )
