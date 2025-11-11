@@ -4,7 +4,7 @@ Binary classifier for near-term volatility spike prediction using price and volu
 
 ## Overview
 
-Predicts "risk days" (volatility spikes) in the next 3 days using historical price and volume patterns. Uses LSTM neural networks trained on realized volatility, returns, and volume features.
+Predicts risk days (volatility spikes) in the next 3 days using historical price and volume patterns. Uses LSTM neural networks trained on realized volatility, returns, and volume features.
 
 ## Setup
 
@@ -14,11 +14,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
 
 ### Data Ingestion
 
-Download OHLCV data for multiple tickers:
 
 ```bash
 python -m src.data.ingest_prices --tickers SPY XLK XLF XLE XLI XLY XLP XLV HYG LQD --interval 1d --start 2010-01-01
@@ -28,7 +26,6 @@ Output: `data/raw/prices.parquet`
 
 ### Feature Engineering
 
-Generate risk labels and features:
 
 ```bash
 python -m src.features.labels --horizon 3 --vol_window 10 --vol_thresh_p 0.8
@@ -38,24 +35,23 @@ Output: `data/processed/mvp_features.parquet`
 
 ### Training
 
-Train LSTM classifier:
 
 ```bash
 python -m src.train model=lstm data.window=60 data.horizon=3
 ```
 
 Output:
-- `artifacts/best_lstm.pt` - Best model by PR-AUC
-- `artifacts/last_lstm.pt` - Final epoch model
-- `artifacts/metrics.json` - Validation metrics
+- artifacts/best_lstm.pt - Best model by PR-AUC
+- artifacts/last_lstm.pt - Final epoch model
+- artifacts/metrics.json - Validation metrics
 
 ## Configuration
 
 Hyperparameters are configured via Hydra configs:
-- `config/default.yaml` - Main configuration
-- `config/model/lstm.yaml` - Model architecture
+- config/default.yaml - Main configuration
+- config/model/lstm.yaml - Model architecture
 
-Override from command line:
+override from command line:
 ```bash
 python -m src.train data.window=90 model.hidden_size=128
 ```
@@ -63,42 +59,42 @@ python -m src.train data.window=90 model.hidden_size=128
 ## Project Structure
 
 ```
-config/                 # Hydra configuration files
+config/                 
   default.yaml
   model/
     lstm.yaml
 src/
   data/
-    ingest_prices.py    # Data download from Yahoo Finance
+    ingest_prices.py    # download from Yahoo Finance
   features/
-    labels.py           # Feature engineering and labeling
+    labels.py           # feat engineering and labeling
   models/
     lstm_classifier.py  # LSTM model architecture
   train.py              # Training loop and evaluation
-data/                   # Data directory (auto-created)
-artifacts/              # Model checkpoints and metrics (auto-created)
+data/                  
+artifacts/              
 ```
 
 ## Features
 
-- Realized volatility (10-day rolling, annualized)
+- Realized volatility, 10-day rolling, annualized
 - Daily returns
 - Volume z-scores (60-day rolling)
 
 ## Labels
 
-Binary classification: 1 if forward-looking max volatility exceeds 80th percentile threshold, 0 otherwise. Horizon: 3 days ahead.
+Binary: 1 if forward-looking max volatility exceeds 80th percentile threshold, 0 otherwise. Horizon: 3 days ahead.
 
 ## Metrics
 
-- PR-AUC: Precision-Recall Area Under Curve (primary metric for imbalanced data)
-- ROC-AUC: Receiver Operating Characteristic AUC
+- PR-AUC
+- ROC-AUC
+  
+## Future Versions
 
-## Roadmap
-
-- v0.2: News sentiment integration (FinBERT embeddings)
-- v0.3: EDGAR filings parsing (8-K/10-Q)
-- v0.4: Multi-modal transformer with cross-attention
+- v0.2: News sentiment integration (FinBERT embeddings??)
+- v0.3: EDGAR filings parsing
+- v0.4: Multi-modal transformer 
 - v0.5: Sector-specific heads and uncertainty quantification
 - v0.6: Online updating and model registry
 
