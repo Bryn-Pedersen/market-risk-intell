@@ -5,8 +5,8 @@ defaults:
 seed: 42
 
 data:
-  window: 60          # sequence length days fed to the LSTM
-  horizon: 3          # for labeling
+  window: 60          
+  horizon: 3         
   features: ["ret", "rv10", "volume_z"]
   train_start: "2012-01-01"
   valid_start: "2019-01-01"
