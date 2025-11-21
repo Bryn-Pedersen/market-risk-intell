@@ -204,8 +204,8 @@ Binary: 1 if forward-looking max volatility exceeds 80th percentile threshold, 0
   
 ## Roadmap
 
-- ✅ v0.2: Prediction export for BI tools (Tableau, PowerBI) - **Complete**
-- v0.3: News sentiment integration (FinBERT embeddings)
+- v0.2: Prediction export for BI tools (Tableau, PowerBI) - Complete
+- v0.3: News sentiment integration (FinBERT embeddings) - in progress
 - v0.4: EDGAR filings parsing (8-K/10-Q)
 - v0.5: Multi-modal transformer with cross-attention
 - v0.6: Sector-specific heads and uncertainty quantification
