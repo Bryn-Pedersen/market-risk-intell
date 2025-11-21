@@ -1,0 +1,24 @@
+defaults:
+  - default        # pull in your existing default.yaml (includes model: lstm)
+  - _self_
+
+# Prediction configuration
+predict:
+  batch_size: 256
+  device: auto         # "auto" | "cpu" | "cuda"
+  threshold: 0.5       # threshold for pred_label binary classification
+  
+  features_filename: "mvp_features.parquet"
+  
+  date_col: "date"
+  ticker_col: "ticker"
+  label_col: "risk_label"  # matches the label column in mvp_features.parquet
+  
+  output_parquet: "${paths.proc_dir}/predictions.parquet"
+  output_csv: "${paths.proc_dir}/predictions.csv"
+  
+  num_workers: 0       # set to 0 to avoid multiprocessing issues
+
+# Model checkpoint path
+model:
+  checkpoint_path: "${paths.artifacts_dir}/best_lstm.pt"
